@@ -7,16 +7,20 @@ import com.kunal.bankingapp.dto.UserRequest;
 import com.kunal.bankingapp.entity.User;
 import com.kunal.bankingapp.repository.UserRepository;
 import com.kunal.utils.AccountUtils;
-import java.math.BigDecimal;
 
-import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    UserRepository userRepository;
+    // @Autowired
+    private final UserRepository userRepository;
+
+    public UserServiceImpl(UserRepository userRepository){
+        this.userRepository=userRepository;
+
+    }
 
     @Override
     public BankResponse createAccount(UserRequest userRequest) {
@@ -24,13 +28,12 @@ public class UserServiceImpl implements UserService {
         // check if user already has an account
 
         if(userRepository.existsByEmail(userRequest.getEmail())){
-            BankResponse response =BankResponse.builder()
+            return BankResponse.builder()
                 .responseCode(AccountUtils.ACCOUNT_EXISTS_CODE)
                 .responseMessage(AccountUtils.ACCOUNT_EXISTS_MESSAGE)
                 .accountInfo(null)
                 .build();
-
-                return response;
+                
             
         }
         User newUser = User.builder()

@@ -1,6 +1,6 @@
 package com.kunal.bankingapp.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,8 +14,13 @@ import com.kunal.bankingapp.services.UserService;
 @RequestMapping("/api/user")
 public class UserController {
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
+
+    // @Autowired
+    public UserController(UserService userService){
+        this.userService=userService;
+    }
+
 
     @PostMapping
     public BankResponse createAccount(@RequestBody UserRequest userRequest){
