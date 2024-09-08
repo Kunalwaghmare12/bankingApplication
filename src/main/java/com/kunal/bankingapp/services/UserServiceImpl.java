@@ -2,22 +2,25 @@ package com.kunal.bankingapp.services;
 
 import com.kunal.bankingapp.dto.AccountInfo;
 import com.kunal.bankingapp.dto.BankResponse;
+import com.kunal.bankingapp.dto.EmailDetails;
 import com.kunal.bankingapp.dto.UserRequest;
 import com.kunal.bankingapp.entity.User;
 import com.kunal.bankingapp.repository.UserRepository;
 import com.kunal.utils.AccountUtils;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    // @Autowired
-    private final UserRepository userRepository;
+    @Autowired
+    private  UserRepository userRepository;
 
-    public UserServiceImpl(UserRepository userRepository){
-        this.userRepository=userRepository;
+    @Autowired
+    private EmailService emailService;
 
-    }
+    
 
     @Override
     public BankResponse createAccount(UserRequest userRequest) {
@@ -33,6 +36,7 @@ public class UserServiceImpl implements UserService {
                 
             
         }
+       
         User newUser = User.builder()
         .firstName(userRequest.getFirstName())
         .lastName(userRequest.getLastName())
@@ -49,6 +53,13 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userRepository.save(newUser);
         
+        //send email
+        EmailDetails emailDetails = EmailDetails.builder()
+                .recipients(savedUser.getEmail())
+                .subject("Account Creation")
+                .messageBody("Congratulation! Your Account Has been Sucessfully Created. \nYour Account Details :\nAccount Name : "+ savedUser.getFirstName()+" "+savedUser.getLastName()+"\nAccount Number : "+ savedUser.getAccountNumber())
+                .build();
+        emailService.sendEmailAlert(emailDetails);
         return BankResponse.builder()
             .responseCode(AccountUtils.ACCOUNT_CREATION_SUCCESS)
             .responseMessage(AccountUtils.ACCOUNT_CREATION_MESSAGE)
