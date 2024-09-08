@@ -5,6 +5,7 @@ import java.util.Random;
 
 public class AccountUtils {
 
+    private static Random random = new Random();
     private AccountUtils() {
         // Private constructor to prevent instantiation
     }
@@ -19,7 +20,7 @@ public class AccountUtils {
          * 2023 + randomSixDigit
          */
         Year currentYear = Year.now();
-        Random random = new Random();
+        
         
         // Generate a random number between 100000 and 999999
         int randomSixDigit = 100000 + random.nextInt(900000); // (999999 - 100000 + 1) = 900000

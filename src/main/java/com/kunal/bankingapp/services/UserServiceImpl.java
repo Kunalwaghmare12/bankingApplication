@@ -1,14 +1,11 @@
 package com.kunal.bankingapp.services;
 
-
 import com.kunal.bankingapp.dto.AccountInfo;
 import com.kunal.bankingapp.dto.BankResponse;
 import com.kunal.bankingapp.dto.UserRequest;
 import com.kunal.bankingapp.entity.User;
 import com.kunal.bankingapp.repository.UserRepository;
 import com.kunal.utils.AccountUtils;
-
-// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
