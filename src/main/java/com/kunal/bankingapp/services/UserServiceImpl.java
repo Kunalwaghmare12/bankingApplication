@@ -133,6 +133,9 @@ public class UserServiceImpl implements UserService {
         // Amount in database is not reflecting
         User userToCredit = userRepository.findByAccountNumber(creditDebitRequest.getAccountNumber());
         userToCredit.setAccountBalance(userToCredit.getAccountBalance().add(creditDebitRequest.getAmount()));
+        
+        //updating balance in repo
+        userRepository.save(userToCredit);
 
         return BankResponse.builder()
             .responseCode(AccountUtils.ACCOUNT_CREDITE_SUCCESS_CODE)
