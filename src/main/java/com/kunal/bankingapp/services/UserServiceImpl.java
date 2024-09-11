@@ -1,20 +1,20 @@
 package com.kunal.bankingapp.services;
 
-import com.kunal.bankingapp.dto.AccountInfo;
-import com.kunal.bankingapp.dto.BankResponse;
-import com.kunal.bankingapp.dto.CreditDebitRequest;
-import com.kunal.bankingapp.dto.EmailDetails;
-import com.kunal.bankingapp.dto.EnquiryRequest;
-import com.kunal.bankingapp.dto.UserRequest;
-import com.kunal.bankingapp.entity.User;
-import com.kunal.bankingapp.repository.UserRepository;
-import com.kunal.utils.AccountUtils;
-
 import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.kunal.bankingapp.dto.AccountInfo;
+import com.kunal.bankingapp.dto.BankResponse;
+import com.kunal.bankingapp.dto.CreditDebitRequest;
+import com.kunal.bankingapp.dto.EnquiryRequest;
+import com.kunal.bankingapp.dto.TransferRequest;
+import com.kunal.bankingapp.dto.UserRequest;
+import com.kunal.bankingapp.entity.User;
+import com.kunal.bankingapp.repository.UserRepository;
+import com.kunal.utils.AccountUtils;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService {
         
         
         User userToCredit = userRepository.findByAccountNumber(creditDebitRequest.getAccountNumber());
-        userRepository.creditAccountInDB(creditDebitRequest.getAccountNumber(),creditDebitRequest.getAmount());
+        userRepository.creditAmmountInDB(creditDebitRequest.getAccountNumber(),creditDebitRequest.getAmount());
         BigDecimal updatedBalance=userRepository.findAccountBalanceByAccountNumber(creditDebitRequest.getAccountNumber());
         
         // userToCredit.setAccountBalance(userToCredit.getAccountBalance().add(creditDebitRequest.getAmount()));
@@ -185,8 +185,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         }
-        userRepository.debitAccountInDB(creditDebitRequest.getAccountNumber(),creditDebitRequest.getAmount());
-        
+        userRepository.debitAmmountInDB(creditDebitRequest.getAccountNumber(),creditDebitRequest.getAmount());
         BigDecimal updatedBalance=userRepository.findAccountBalanceByAccountNumber(creditDebitRequest.getAccountNumber());
         // userToDebit.setAccountBalance(userToDebit.getAccountBalance().subtract(creditDebitRequest.getAmount()));
         // updating amount in database
@@ -202,6 +201,52 @@ public class UserServiceImpl implements UserService {
                 .build())
             .build();
 
+    }
+
+
+
+    @Override
+    @Transactional
+    public BankResponse transfer(TransferRequest transferRequest) {
+        boolean isSourceAccountExists=userRepository.existsByAccountNumber(transferRequest.getSourceAccountNumber());
+        boolean isDestinationAccountExists = userRepository.existsByAccountNumber(transferRequest.getDestinationAccountNumber());
+
+        if(!isSourceAccountExists && !isDestinationAccountExists){
+            return BankResponse.builder()
+                .responseCode(AccountUtils.ACCOUNT_NOT_EXISTS_CODE)
+                .responseCode(AccountUtils.ACCOUNT_NOT_EXISTS_MESSAGE)
+                .build();
+        }else if(isDestinationAccountExists && !isSourceAccountExists){
+            return BankResponse.builder()
+                .responseCode(AccountUtils.ACCOUNT_NOT_EXISTS_CODE)
+                .responseMessage("Source Account :"+AccountUtils.ACCOUNT_NOT_EXISTS_MESSAGE)
+                .build();
+
+        }else if(!isDestinationAccountExists && isSourceAccountExists){
+            return BankResponse.builder()
+                .responseCode(AccountUtils.ACCOUNT_NOT_EXISTS_CODE)
+                .responseMessage("Destination Account :"+AccountUtils.ACCOUNT_NOT_EXISTS_MESSAGE)
+                .build();
+        }
+        else{
+            User sourceUser =userRepository.findByAccountNumber(transferRequest.getSourceAccountNumber());
+            User destinationUser= userRepository.findByAccountNumber(transferRequest.getDestinationAccountNumber());
+
+            if(sourceUser.getAccountBalance().compareTo(transferRequest.getAmount())<0){
+                return BankResponse.builder()
+                    .responseCode(AccountUtils.ACCOUNT_INSUFFICIENT_CODE)
+                    .responseMessage(AccountUtils.ACCOUNT_INSUFFICIENT_MESSAGE)
+                    .build();
+            }else{
+                destinationUser.setAccountBalance(destinationUser.getAccountBalance().add(transferRequest.getAmount()));
+                userRepository.debitAmmountInDB(sourceUser.getAccountNumber(), transferRequest.getAmount());
+                userRepository.creditAmmountInDB(destinationUser.getAccountNumber(), transferRequest.getAmount());
+                return BankResponse.builder()
+                    .responseCode(AccountUtils.FUND_TRANSFER_CODE)
+                    .responseMessage(AccountUtils.FUND_TRANSFER_MESSAGE)
+                    .build();
+            }
+        }
     }
 
     

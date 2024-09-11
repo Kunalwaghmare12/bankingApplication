@@ -19,10 +19,10 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     @Modifying
     @Query("UPDATE users u SET u.accountBalance = u.accountBalance + :amount WHERE u.accountNumber = :accountNumber")
-    void creditAccountInDB(String accountNumber,BigDecimal amount);
+    void creditAmmountInDB(String accountNumber,BigDecimal amount);
 
     @Modifying
     @Query("UPDATE users u SET u.accountBalance = u.accountBalance - :amount WHERE u.accountNumber = :accountNumber")
-    void debitAccountInDB(String accountNumber,BigDecimal amount);
+    void debitAmmountInDB(String accountNumber,BigDecimal amount);
 
 }
