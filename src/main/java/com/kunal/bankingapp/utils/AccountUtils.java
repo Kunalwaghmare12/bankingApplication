@@ -1,4 +1,4 @@
-package com.kunal.utils;
+package com.kunal.bankingapp.utils;
 
 import java.time.Year;
 import java.util.Random;
