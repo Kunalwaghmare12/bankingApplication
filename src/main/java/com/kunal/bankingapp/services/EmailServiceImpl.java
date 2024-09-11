@@ -11,15 +11,12 @@ import com.kunal.bankingapp.dto.EmailDetails;
 @Service
 public class EmailServiceImpl implements EmailService {
 
-    private final JavaMailSender javaMailSender;
 
     @Value("${spring.mail.username}")
     private String senderEmail;
 
     @Autowired
-    public EmailServiceImpl(JavaMailSender javaMailSender){
-        this.javaMailSender=javaMailSender;
-    }
+    JavaMailSender javaMailSender;
 
     @Override
     public void sendEmailAlert(EmailDetails emailDetails) {

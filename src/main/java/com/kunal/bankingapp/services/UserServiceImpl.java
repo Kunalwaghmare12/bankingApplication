@@ -10,8 +10,11 @@ import com.kunal.bankingapp.entity.User;
 import com.kunal.bankingapp.repository.UserRepository;
 import com.kunal.utils.AccountUtils;
 
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -119,8 +122,8 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
     @Override
+    @Transactional
     public BankResponse creditAccount(CreditDebitRequest creditDebitRequest) {
         boolean isAccountExists = userRepository.existsByAccountNumber(creditDebitRequest.getAccountNumber());
         if(!isAccountExists){
@@ -130,12 +133,15 @@ public class UserServiceImpl implements UserService {
                 .accountInfo(null)
                 .build();
         }
-        // Amount in database is not reflecting
-        User userToCredit = userRepository.findByAccountNumber(creditDebitRequest.getAccountNumber());
-        userToCredit.setAccountBalance(userToCredit.getAccountBalance().add(creditDebitRequest.getAmount()));
         
+        
+        User userToCredit = userRepository.findByAccountNumber(creditDebitRequest.getAccountNumber());
+        userRepository.creditAccountInDB(creditDebitRequest.getAccountNumber(),creditDebitRequest.getAmount());
+        BigDecimal updatedBalance=userRepository.findAccountBalanceByAccountNumber(creditDebitRequest.getAccountNumber());
+        
+        // userToCredit.setAccountBalance(userToCredit.getAccountBalance().add(creditDebitRequest.getAmount()));
         //updating balance in repo
-        userRepository.save(userToCredit);
+        // userRepository.save(userToCredit);
 
         return BankResponse.builder()
             .responseCode(AccountUtils.ACCOUNT_CREDITE_SUCCESS_CODE)
@@ -143,7 +149,56 @@ public class UserServiceImpl implements UserService {
             .accountInfo(AccountInfo.builder()
                 .accountName(userToCredit.getFirstName()+" "+userToCredit.getLastName())
                 .accountNumber(userToCredit.getAccountNumber())
-                .accountBalance(userToCredit.getAccountBalance())
+                .accountBalance(updatedBalance)
+                .build())
+            .build();
+
+    }
+
+
+
+    @Override
+    @Transactional
+    public BankResponse debitAccount(CreditDebitRequest creditDebitRequest) {
+        boolean isAccountExists=userRepository.existsByAccountNumber(creditDebitRequest.getAccountNumber());
+
+        if(!isAccountExists){
+            return BankResponse.builder()
+                .responseCode(AccountUtils.ACCOUNT_NOT_EXISTS_CODE)
+                .responseMessage(AccountUtils.ACCOUNT_NOT_EXISTS_MESSAGE)
+                .accountInfo(null)
+                .build();
+        }
+
+        
+        User userToDebit = userRepository.findByAccountNumber(creditDebitRequest.getAccountNumber());
+        BigDecimal availabelBalance = userRepository.findAccountBalanceByAccountNumber(creditDebitRequest.getAccountNumber());
+        if(availabelBalance.compareTo(creditDebitRequest.getAmount())<0){
+            return BankResponse.builder()
+                .responseCode(AccountUtils.ACCOUNT_INSUFFICIENT_CODE)
+                .responseMessage(AccountUtils.ACCOUNT_INSUFFICIENT_MESSAGE)
+                .accountInfo(AccountInfo.builder()
+                    .accountName(userToDebit.getFirstName()+" "+userToDebit.getLastName())
+                    .accountNumber(userToDebit.getAccountNumber())
+                    .accountBalance(userToDebit.getAccountBalance())
+                    .build())
+                .build();
+
+        }
+        userRepository.debitAccountInDB(creditDebitRequest.getAccountNumber(),creditDebitRequest.getAmount());
+        
+        BigDecimal updatedBalance=userRepository.findAccountBalanceByAccountNumber(creditDebitRequest.getAccountNumber());
+        // userToDebit.setAccountBalance(userToDebit.getAccountBalance().subtract(creditDebitRequest.getAmount()));
+        // updating amount in database
+        // userRepository.save(userToDebit);
+
+        return BankResponse.builder()
+            .responseCode(AccountUtils.ACCOUNT_DEBIT_SUCCESS_CODE)
+            .responseMessage(AccountUtils.ACCOUNT_DEBIT_SUCCESS_MESSAGE)
+            .accountInfo(AccountInfo.builder()
+                .accountName(userToDebit.getFirstName()+" "+userToDebit.getLastName())
+                .accountNumber(userToDebit.getAccountNumber())
+                .accountBalance(updatedBalance)
                 .build())
             .build();
 

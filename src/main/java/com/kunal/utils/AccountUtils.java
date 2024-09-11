@@ -20,6 +20,10 @@ public class AccountUtils {
     public static final String USER_FOUND_MESSAGE = "User Account Found";
     public static final String ACCOUNT_CREDITE_SUCCESS_CODE = "005";
     public static final String ACCOUNT_CREDITE_SUCCESS_MESSAGE = "Account has been credited Sucessfully!";
+    public static final String ACCOUNT_DEBIT_SUCCESS_CODE = "006";
+    public static final String ACCOUNT_DEBIT_SUCCESS_MESSAGE = "Account has been debited Sucessfully!";
+    public static final String ACCOUNT_INSUFFICIENT_CODE = "007";
+    public static final String ACCOUNT_INSUFFICIENT_MESSAGE = "Insufficient Funds!";
 
     public static String generateAccountNumber() {
         //2023 + randomSixDigit

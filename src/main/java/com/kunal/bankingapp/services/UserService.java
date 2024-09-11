@@ -9,8 +9,8 @@ import com.kunal.bankingapp.dto.UserRequest;
 public interface UserService {
 
     BankResponse createAccount(UserRequest userRequest);
-    // BankResponse updateAccount(UserRequest userRequest); // method yet to be created
     BankResponse balanceEnquiry(EnquiryRequest enquiryRequest);
     String nameEnquiry(EnquiryRequest enquiryRequest);
     BankResponse creditAccount(CreditDebitRequest creditDebitRequest);
+    BankResponse debitAccount(CreditDebitRequest creditDebitRequest);
 }
