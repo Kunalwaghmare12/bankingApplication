@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kunal.bankingapp.dto.BankResponse;
 import com.kunal.bankingapp.dto.CreditDebitRequest;
 import com.kunal.bankingapp.dto.EnquiryRequest;
+import com.kunal.bankingapp.dto.LoginDto;
 import com.kunal.bankingapp.dto.TransferRequest;
 import com.kunal.bankingapp.dto.UserRequest;
 import com.kunal.bankingapp.services.UserService;
@@ -29,6 +30,12 @@ public class UserController {
     @PostMapping
     public BankResponse createAccount(@RequestBody UserRequest userRequest){
         return userService.createAccount(userRequest);
+
+    }
+
+    @PostMapping("/login")
+    public BankResponse login(@RequestBody LoginDto loginDto){
+        return userService.login(loginDto);
 
     }
 

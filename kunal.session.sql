@@ -1,5 +1,5 @@
--- SELECT * FROM users;
+SELECT * FROM users;
 
--- show tables;
+-- -- show tables;
 
-SELECT * FROM transactions;
+-- SELECT * FROM transactions;
